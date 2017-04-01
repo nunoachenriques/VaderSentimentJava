@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'java-library-distribution'
+
+sourceCompatibility = 1.8
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version:'5.5.0'
+  compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
+  compile group: 'log4j', name: 'log4j', version:'1.2.17'
+  // JUNIT
+  testCompile 'junit:junit:4.+'
+}
+
+version = file("VERSION").getText()
+def applicationName = "VaderSentimentJava"
+
+println "${applicationName} ${version}"

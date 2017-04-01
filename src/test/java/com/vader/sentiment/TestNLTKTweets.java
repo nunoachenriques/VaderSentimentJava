@@ -32,18 +32,15 @@ public class TestNLTKTweets {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
                 while ((line = br.readLine()) != null) {
-                    String[] gtFileData = line.split("\\t");
-
+                    String[] gtFileData = line.split("\\t");                    
                     float expectedNegativeScore = Float.parseFloat(gtFileData[1]);
                     float expectedNeutralScore = Float.parseFloat(gtFileData[2]);
                     float expectedPositiveScore = Float.parseFloat(gtFileData[3]);
                     float expectedCompoundScore = Float.parseFloat(gtFileData[4]);
                     String inputString = gtFileData[5];
 
-                    SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer(inputString);
-                    sentimentAnalyzer.analyse();
-
-                    HashMap<String, Float> inputStringPolarity = sentimentAnalyzer.getPolarity();
+                    SentimentAnalyzer sa = new SentimentAnalyzer(inputString);
+                    HashMap<String,Float> inputStringPolarity = sa.getSentimentPolarity();
                     float actualNegativeScore = inputStringPolarity.get("negative");
                     float actualPositiveScore = inputStringPolarity.get("positive");
                     float actualNeutralScore = inputStringPolarity.get("neutral");

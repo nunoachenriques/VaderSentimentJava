@@ -2,43 +2,111 @@ package com.vader;
 
 import com.vader.analyzer.TextProperties;
 import com.vader.util.Utils;
-
-import org.apache.log4j.Logger;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.IOException;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
- * The SentimentAnalyzer class is the main class for VADER Sentiment analysis.
+ * The SentimentAnalyzer class is the main class for VADER Sentiment Analysis.
  *
  * @author Animesh Pandey
  *         Created on 4/11/2016.
- * @see <a href="http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf">VADER: A Parsimonious Rule-based Model for
- * Sentiment Analysis of Social Media Text</a>
+ * @see <a href="http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf">VADER:
+ * A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text</a>
  */
 public class SentimentAnalyzer {
     private static Logger logger = Logger.getLogger(SentimentAnalyzer.class);
 
-    private String inputString;
-    private TextProperties inputStringProperties;
+    private String text;
+    private TextProperties textProperties;
     private HashMap<String, Float> polarity;
 
-    public SentimentAnalyzer(String inputString) throws IOException {
-        this.inputString = inputString;
-        setInputStringProperties();
+    /**
+     * Default constructor without arguments. Use case:
+     * <pre>
+     * ...
+     * <code>
+     * String s = "VADER is smart, handsome, and funny!";
+     * System.out.println(s);
+     * SentimentAnalyzer sa = new SentimentAnalyzer();
+     * sa.setText(s);
+     * System.out.println(sa.getSentimentPolarity().toString());
+     * </code>
+     * ...
+     * </pre>
+     */
+    public SentimentAnalyzer() throws IOException {
+        text = null;
+        textProperties = null;
+        polarity = null;
     }
 
-    private void setInputStringProperties() throws IOException {
-        inputStringProperties = new TextProperties(inputString);
+    /**
+     * One-argument constructor with text set. Use case:
+     * <pre>
+     * ...
+     * <code>
+     * String s = "VADER is smart, handsome, and funny!";
+     * System.out.println(s);
+     * SentimentAnalyzer sa = new SentimentAnalyzer(s);
+     * System.out.println(sa.getSentimentPolarity().toString());
+     * </code>
+     * ...
+     * </pre>
+     * @param s The text sample intended for sentiment analysis.
+     * @throws IOException
+     */
+    public SentimentAnalyzer(String s) throws IOException {
+        setText(s);
+        polarity = null;
     }
 
-    public HashMap<String, Float> getPolarity() {
+    /**
+     * Sets the text sample intended for sentiment analysis and does
+     * all the text properties preprocessing.
+     * @param s The text sample.
+     * @throws IOException
+     */
+    public void setText(String s) throws IOException {
+        text = s;
+        textProperties = new TextProperties(s);
+    }
+
+    /**
+     * Gets the current text sample intended for sentiment analysis.
+     * @return The text sample.
+     */
+    public String getText() {
+        return text;
+    }
+
+    /**
+     * Does the sentiment analysis of the current text sample, sets
+     * and returns the polarity values.
+     * @deprecated As of release 1.1, replaced by {@link #getSentimentPolarity()}
+     */
+    @Deprecated public void analyse() {
+        polarity = getSentiment();
+    }
+
+    /**
+     * Does the sentiment analysis of the current text sample, sets
+     * and returns the polarity values.
+     * @return The list of positive, neutral, negative, and compound name-value pairs.
+     */
+    public HashMap<String, Float> getSentimentPolarity() {
+        polarity = getSentiment();
         return polarity;
     }
 
-    public void analyse() {
-        polarity = getSentiment();
+    /**
+     * Gets the polarity of the current text sample sentiment analysis.
+     * @return The list of positive, neutral, negative, and compound name-value pairs.
+     * @see #getSentimentPolarity()
+     */
+    public HashMap<String, Float> getPolarity() {
+        return polarity;
     }
 
     private float valenceModifier(String precedingWord, float currentValence) {
@@ -48,18 +116,18 @@ public class SentimentAnalyzer {
             scalar = Utils.BOOSTER_DICTIONARY.get(precedingWordLower);
             if (currentValence < 0.0)
                 scalar *= -1.0;
-            if (Utils.isUpper(precedingWord) && inputStringProperties.isCapDIff())
+            if (Utils.isUpper(precedingWord) && textProperties.isCapDIff())
                 scalar = (currentValence > 0.0) ? scalar + Utils.ALL_CAPS_BOOSTER_SCORE : scalar - Utils.ALL_CAPS_BOOSTER_SCORE;
         }
         return scalar;
     }
 
     private int pythonIndexToJavaIndex(int pythonIndex) {
-        return inputStringProperties.getWordsAndEmoticons().size() - Math.abs(pythonIndex);
+        return textProperties.getWordsAndEmoticons().size() - Math.abs(pythonIndex);
     }
 
     private float checkForNever(float currentValence, int startI, int i, int closeTokenIndex) {
-        ArrayList<String> wordsAndEmoticons = inputStringProperties.getWordsAndEmoticons();
+        ArrayList<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
 
         if (startI == 0) {
             if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(i - 1))))) {
@@ -94,7 +162,7 @@ public class SentimentAnalyzer {
     }
 
     private float checkForIdioms(float currentValence, int i) {
-        ArrayList<String> wordsAndEmoticons = inputStringProperties.getWordsAndEmoticons();
+        ArrayList<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
         final String leftBiGramFromCurrent = String.format("%s %s", wordsAndEmoticons.get(i - 1), wordsAndEmoticons.get(i));
         final String leftTriGramFromCurrent = String.format("%s %s %s", wordsAndEmoticons.get(i - 2), wordsAndEmoticons.get(i - 1), wordsAndEmoticons.get(i));
         final String leftBiGramFromOnePrevious = String.format("%s %s", wordsAndEmoticons.get(i - 2), wordsAndEmoticons.get(i - 1));
@@ -138,7 +206,7 @@ public class SentimentAnalyzer {
 
     private HashMap<String, Float> getSentiment() {
         ArrayList<Float> sentiments = new ArrayList<>();
-        ArrayList<String> wordsAndEmoticons = inputStringProperties.getWordsAndEmoticons();
+        ArrayList<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
 
         for (String item : wordsAndEmoticons) {
             float currentValence = 0.0f;
@@ -163,10 +231,10 @@ public class SentimentAnalyzer {
                 currentValence = Utils.WORD_VALENCE_DICTIONARY.get(currentItemLower);
 
                 logger.debug(Utils.isUpper(item));
-                logger.debug(inputStringProperties.isCapDIff());
-                logger.debug((Utils.isUpper(item) && inputStringProperties.isCapDIff()) + "\t" + item + "\t" + inputStringProperties.isCapDIff());
+                logger.debug(textProperties.isCapDIff());
+                logger.debug((Utils.isUpper(item) && textProperties.isCapDIff()) + "\t" + item + "\t" + textProperties.isCapDIff());
 
-                if (Utils.isUpper(item) && inputStringProperties.isCapDIff()) {
+                if (Utils.isUpper(item) && textProperties.isCapDIff()) {
                     currentValence = (currentValence > 0.0) ? currentValence + Utils.ALL_CAPS_BOOSTER_SCORE : currentValence - Utils.ALL_CAPS_BOOSTER_SCORE;
                 }
 
@@ -322,12 +390,12 @@ public class SentimentAnalyzer {
     }
 
     private float boostByExclamation() {
-        int exclamationCount = StringUtils.countMatches(inputString, "!");
+        int exclamationCount = StringUtils.countMatches(text, "!");
         return Math.min(exclamationCount, 4) * Utils.EXCLAMATION_BOOST;
     }
 
     private float boostByQuestionMark() {
-        int questionMarkCount = StringUtils.countMatches(inputString, "?");
+        int questionMarkCount = StringUtils.countMatches(text, "?");
         float questionMarkAmplifier = 0.0f;
         if (questionMarkCount > 1)
             questionMarkAmplifier = (questionMarkCount <= 3) ? questionMarkCount * Utils.QUESTION_BOOST_COUNT_3 : Utils.QUESTION_BOOST;
