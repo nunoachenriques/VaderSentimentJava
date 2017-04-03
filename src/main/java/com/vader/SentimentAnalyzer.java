@@ -36,7 +36,7 @@ public class SentimentAnalyzer {
      * ...
      * </pre>
      */
-    public SentimentAnalyzer() throws IOException {
+    public SentimentAnalyzer() {
         text = null;
         textProperties = null;
         polarity = null;
