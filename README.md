@@ -15,7 +15,7 @@ originally written in Python.
  - The [NLTK](http://www.nltk.org/_modules/nltk/sentiment/vader.html)
    Python source code.
 
-## Citation information
+## Citation
 
 If you use either the dataset or any of the VADER sentiment analysis
 tools (VADER sentiment lexicon or Python code for rule-based sentiment
@@ -27,7 +27,7 @@ example:
   International Conference on Weblogs and Social Media (ICWSM-14). Ann
   Arbor, MI, June 2014.**
 
-## Testing information
+## Testing
 
 The tests from the original Java port are validated against the ground
 truth of the original Python (NLTK) implementation.
