@@ -60,10 +60,11 @@ ArrayList<String> sentences = new ArrayList<String>() {{
     add("Today kinda sux! But I'll get by, lol");
 }};
 
+SentimentAnalyzer sa = new SentimentAnalyzer();
+
 for (String sentence : sentences) {
     System.out.println(sentence);
-    SentimentAnalyzer sa = new SentimentAnalyzer(sentence);
-    System.out.println(sa.getSentimentPolarity().toString());
+    System.out.println(sa.getSentimentAnalysis(sentence).toString());
 }
 ...
 ```
