@@ -1,42 +1,45 @@
-# VADER: sentiment analysis in Java
+# VADER Sentiment Analysis in Java
 
 VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon
 and rule-based sentiment analysis tool that is _specifically attuned
 to sentiments expressed in social media_.
 
-This is a fork of the
+This is a fork with **API and package names breaking changes** of the
 [Java port by Animesh Pandey](https://github.com/apanimesh061/VaderSentimentJava)
 of the
 [NLTK VADER sentiment analysis module](http://www.nltk.org/api/nltk.sentiment.html#module-nltk.sentiment.vader)
-originally written in Python.
+written in Python and optimized from the original.
 
- - The [Original](https://github.com/cjhutto/vaderSentiment) Python
-   source code by the paper's author C.J. Hutto.
  - The [NLTK](http://www.nltk.org/_modules/nltk/sentiment/vader.html)
    Python source code.
+ - The [Original](https://github.com/cjhutto/vaderSentiment) Python
+   source code by the paper's author C.J. Hutto.
 
 ## Citation
 
 If you use either the dataset or any of the VADER sentiment analysis
 tools (VADER sentiment lexicon or Python code for rule-based sentiment
-analysis engine) in your research, please cite the original paper. For
-example:
+analysis engine) in your research, please cite the original paper:
 
-**Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based
-  Model for Sentiment Analysis of Social Media Text. Eighth
-  International Conference on Weblogs and Social Media (ICWSM-14). Ann
-  Arbor, MI, June 2014.**
+Hutto, C. J., & Gilbert, E. (2014). VADER: A Parsimonious Rule-based Model for
+Sentiment Analysis of Social Media Text. In Proceedings of the Eighth
+International AAAI Conference on Weblogs and Social Media (pp. 216–225).
+Ann Arbor, Michigan, USA.
+
+Retrieved from http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf
 
 ## Testing
 
-The tests from the original Java port are validated against the ground
-truth of the original Python (NLTK) implementation.
+The tests from the original Java port are validated against the ground truth of
+the original Python (NLTK) implementation. The algorithm running is still the
+original implementation from Hutto & Gilbert in Python and ported to Java by
+Animesh Pandey.
 
 ```shell
 gradle test
 ```
 
-## Java code example
+## Use case example
 
 ```java
 ...
@@ -60,7 +63,7 @@ ArrayList<String> sentences = new ArrayList<String>() {{
     add("Today kinda sux! But I'll get by, lol");
 }};
 
-SentimentAnalyzer sa = new SentimentAnalyzer();
+SentimentAnalysis sa = new SentimentAnalysis();
 
 for (String sentence : sentences) {
     System.out.println(sentence);

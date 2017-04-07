@@ -1,6 +1,5 @@
-package com.vader.sentiment;
+package net.nunoachenriques.vader;
 
-import com.vader.SentimentAnalyzer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +12,7 @@ import org.junit.Test;
 
 /**
  * @author Animesh Pandey Created on 4/14/2016.
+ * @author Nuno A. C. Henriques [nunoachenriques.net]
  */
 public class TestNLTKTweets {
 
@@ -40,7 +40,7 @@ public class TestNLTKTweets {
                     float expectedCompoundScore = Float.parseFloat(gtFileData[4]);
                     String inputString = gtFileData[5];
 
-                    SentimentAnalyzer sa = new SentimentAnalyzer();
+                    SentimentAnalysis sa = new SentimentAnalysis();
                     HashMap<String, Float> inputStringPolarity = sa.getSentimentAnalysis(inputString);
                     float actualNegativeScore = inputStringPolarity.get("negative");
                     float actualPositiveScore = inputStringPolarity.get("positive");

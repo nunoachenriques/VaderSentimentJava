@@ -1,40 +1,41 @@
-package com.vader.analyzer;
-
-import com.vader.util.Utils;
-import org.apache.log4j.Logger;
+package net.nunoachenriques.vader.text;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import net.nunoachenriques.vader.lexicon.English;
+import org.apache.log4j.Logger;
 
 /**
- * The TextProperties class implements the pre-processing steps of the input string for sentiment analysis.
- * It utilizes the Lucene analyzers
+ * Implements the text pre-processing steps of the input string for sentiment
+ * analysis based on text properties. It uses the tokenizer available from the
+ * text package.
  *
- * @author Animesh Pandey
- *         Created on 4/10/2016.
- * @see com.vader.analyzer.VaderLuceneAnalyzer
+ * @author Animesh Pandey Created on 4/10/2016.
+ * @see net.nunoachenriques.vader.text
  */
-public class TextProperties {
-    private static Logger logger = Logger.getLogger(TextProperties.class);
+public class Properties {
 
-    private String inputText;
+    private static final Logger LOGGER = Logger.getLogger(Properties.class);
+    private final String inputText;
     private ArrayList<String> wordsAndEmoticons;
     private ArrayList<String> wordsOnly;
     private boolean isCapDIff;
 
-    /**
-     * This method tokenizes the input string, preserving the punctuation marks using
-     *
-     * @throws IOException
-     * @see com.vader.analyzer.VaderLuceneAnalyzer#defaultSplit(String)
+    public Properties(String inputText) throws IOException {
+        this.inputText = inputText;
+        setWordsAndEmoticons();
+        setCapDIff(isAllCapDifferential());
+    }
+
+    /*
+     * Tokenizes the input string, preserving the punctuation marks.
      */
     private void setWordsAndEmoticons() throws IOException {
         setWordsOnly();
-
-        ArrayList<String> wordsAndEmoticonsList = new VaderLuceneAnalyzer().defaultSplit(inputText);
+        ArrayList<String> wordsAndEmoticonsList = new TokenizerLucene().defaultSplit(inputText);
         for (String currentWord : wordsOnly) {
-            for (String currentPunc : Utils.PUNCTUATION_LIST) {
+            for (String currentPunc : English.PUNCTUATION_LIST) {
                 String pWord = currentWord + currentPunc;
                 Integer pWordCount = Collections.frequency(wordsAndEmoticonsList, pWord);
                 while (pWordCount > 0) {
@@ -57,36 +58,29 @@ public class TextProperties {
         this.wordsAndEmoticons = wordsAndEmoticonsList;
     }
 
-    /**
-     * This method tokenizes the input string, removing the special characters as well
-     *
-     * @throws IOException
-     * @see com.vader.analyzer.VaderLuceneAnalyzer#removePunctuation(String)
-     * This helps get the actual number of tokens in the input string
-     */
     private void setWordsOnly() throws IOException {
-        this.wordsOnly = new VaderLuceneAnalyzer().removePunctuation(inputText);
+        this.wordsOnly = new TokenizerLucene().removePunctuation(inputText);
     }
 
     private void setCapDIff(boolean capDIff) {
         isCapDIff = capDIff;
     }
 
-    /**
-     * @return True iff the the tokens have yelling words i.e. all caps in the tokens
-     * e.g. [GET, THE, HELL, OUT] returns false
-     * [GET, the, HELL, OUT] returns true
-     * [get, the, hell, out] returns false
+    /*
+     * True iff the the tokens have yelling words i.e. all caps in the
+     * tokens e.g. [GET, THE, HELL, OUT] returns false [GET, the, HELL, OUT]
+     * returns true [get, the, hell, out] returns false
      */
     private boolean isAllCapDifferential() {
         int countAllCaps = 0;
         for (String s : wordsAndEmoticons) {
-            logger.debug(s + "\t" + Utils.isUpper(s));
-            if (Utils.isUpper(s))
+            LOGGER.debug(s + "\t" + English.isUpper(s));
+            if (English.isUpper(s)) {
                 countAllCaps++;
+            }
         }
         int capDifferential = wordsAndEmoticons.size() - countAllCaps;
-        logger.debug(wordsAndEmoticons.size() + "\t" + capDifferential + "\t" + countAllCaps);
+        LOGGER.debug(wordsAndEmoticons.size() + "\t" + capDifferential + "\t" + countAllCaps);
         return (0 < capDifferential) && (capDifferential < wordsAndEmoticons.size());
     }
 
@@ -100,16 +94,5 @@ public class TextProperties {
 
     public boolean isCapDIff() {
         return isCapDIff;
-    }
-
-    public TextProperties(String inputText) throws IOException {
-        this.inputText = inputText;
-        setWordsAndEmoticons();
-        setCapDIff(isAllCapDifferential());
-    }
-
-    public static void main(String[] args) throws IOException {
-        TextProperties t = new TextProperties("Going to brave the rainy Walt Disney World day to find some fun.  Hopefully some dry fun. LOL");
-        System.out.println(t.isCapDIff());
     }
 }

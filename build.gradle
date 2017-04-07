@@ -16,6 +16,6 @@ dependencies {
 }
 
 version = file("VERSION").getText()
-def applicationName = "VaderSentimentJava"
+def applicationName = "VADER Sentiment Analysis in Java"
 
 println "${applicationName} ${version}"
