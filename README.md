@@ -28,6 +28,21 @@ Ann Arbor, Michigan, USA.
 
 Retrieved from http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf
 
+## Install
+
+### From source code
+
+1. Get the code from the repository (clone or download).
+
+2. Change to the package root directory and `gradle installDist`.
+
+3. The JAR packages will be in
+`build/install/vader-sentiment-analysis` directory.
+
+### From public repository (JAR release)
+
+**FIXME**: not yet!
+
 ## Testing
 
 The tests from the original Java port are validated against the ground truth of

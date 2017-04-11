@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The SentimentAnalysis class is the main class for VADER Sentiment Analysis.
@@ -64,7 +65,7 @@ import org.apache.log4j.Logger;
  */
 public class SentimentAnalysis {
 
-    private static final Logger LOGGER = Logger.getLogger(SentimentAnalysis.class);
+    private static final Logger LOGGER = LogManager.getLogger(SentimentAnalysis.class);
     private String text;
     private Properties textProperties;
     private HashMap<String, Float> polarity;

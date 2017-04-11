@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import net.nunoachenriques.vader.lexicon.English;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Implements the text pre-processing steps of the input string for sentiment
@@ -16,7 +17,7 @@ import org.apache.log4j.Logger;
  */
 public class Properties {
 
-    private static final Logger LOGGER = Logger.getLogger(Properties.class);
+    private static final Logger LOGGER = LogManager.getLogger(Properties.class);
     private final String inputText;
     private ArrayList<String> wordsAndEmoticons;
     private ArrayList<String> wordsOnly;

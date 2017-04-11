@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class contains the constants that are the used by the sentiment analysis
@@ -25,7 +26,7 @@ import org.apache.log4j.Logger;
  */
 public class English {
 
-    private static final Logger LOGGER = Logger.getLogger(English.class);
+    private static final Logger LOGGER = LogManager.getLogger(English.class);
     private static final ClassLoader LOADER = English.class.getClassLoader();
 
     private static final String[] PUNCTUATION_LIST_array = {
