@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
  * text package.
  *
  * @author Animesh Pandey Created on 4/10/2016.
- * @see net.nunoachenriques.vader.text
+ * @see net.nunoachenriques.vader.lexicon.English
  */
 public class Properties {
 
