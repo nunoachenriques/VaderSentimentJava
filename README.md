@@ -15,6 +15,10 @@ written in Python and optimized from the original.
  - The [Original](https://github.com/cjhutto/vaderSentiment) Python
    source code by the paper's author C.J. Hutto.
 
+## Repository
+
+https://github.com/nunoachenriques/vader-sentiment-analysis
+
 ## Citation
 
 If you use either the dataset or any of the VADER sentiment analysis
@@ -39,9 +43,9 @@ Retrieved from http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf
 3. The JAR packages will be in
 `build/install/vader-sentiment-analysis` directory.
 
-### From public repository (JAR release)
+### From release
 
-**FIXME**: not yet!
+https://github.com/nunoachenriques/vader-sentiment-analysis/releases
 
 ## Testing
 

@@ -20,3 +20,18 @@ dependencies {
     // JUNIT
     testCompile 'junit:junit:4.+'
 }
+
+// EXTRA PACKAGING FOR RELEASE DISTRIBUTION
+task release(dependsOn: ['test', 'distZip', 'sourcesZip', 'javadocZip'])
+
+task sourcesZip(type: Zip, dependsOn: 'classes') {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    destinationDir = file("${distsDir}")
+}
+
+task javadocZip(type: Zip, dependsOn: 'javadoc') {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+    destinationDir = file("${distsDir}")
+}
