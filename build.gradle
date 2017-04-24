@@ -1,9 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 version = file("VERSION").getText()
-def applicationName = "VADER Sentiment Analysis in Java"
+String applicationName = "VADER Sentiment Analysis in Java"
 
 println "${applicationName} ${version}"
 
@@ -12,11 +13,11 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version:'5.5.0'
+    compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version:'5.5.+'
     compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
     // LOGGER
-    compile 'org.apache.logging.log4j:log4j-api:2.+'
-    compile 'org.apache.logging.log4j:log4j-core:2.+'
+    compile 'org.apache.logging.log4j:log4j-api:2.8.+'
+    compile 'org.apache.logging.log4j:log4j-core:2.8.+'
     // JUNIT
     testCompile 'junit:junit:4.+'
 }
