@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version:'5.5.+'
+    compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version:'5.5.4'
     compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
     // LOGGER
     compile 'org.apache.logging.log4j:log4j-api:2.8.+'
