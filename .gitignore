@@ -1,3 +1,4 @@
 .gradle
-/build
-/.nb-gradle*
+.idea
+build
+local.properties

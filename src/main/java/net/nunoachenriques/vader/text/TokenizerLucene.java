@@ -1,8 +1,5 @@
 package net.nunoachenriques.vader.text;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
@@ -10,11 +7,16 @@ import org.apache.lucene.analysis.miscellaneous.LengthFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+
 /**
  * @author Animesh Pandey Created on 4/9/2016.
  * @author Nuno A. C. Henriques [nunoachenriques.net]
  */
-class TokenizerLucene implements TokenizerInterface {
+class TokenizerLucene
+        implements TokenizerInterface {
 
     /**
      * Tokenizes the input string removing white space. Text pre-processing with
@@ -24,7 +26,7 @@ class TokenizerLucene implements TokenizerInterface {
      * @param inputString The input string to be pre-processed with Lucene white
      * space tokenizer.
      * @return {@code ArrayList<String>} of tokens of inputString.
-     * @throws IOException
+     * @throws IOException on a file operation failure (e.g., reading properties).
      */
     @Override
     public ArrayList<String> defaultSplit(String inputString) throws IOException {
@@ -41,7 +43,6 @@ class TokenizerLucene implements TokenizerInterface {
             }
             tokenStream.end();
         }
-
         return tokenizedString;
     }
 
@@ -53,7 +54,7 @@ class TokenizerLucene implements TokenizerInterface {
      * @param inputString The input string to be pre-processed with Lucene
      * standard tokenizer to remove punctuation.
      * @return {@code ArrayList<String>} of tokens of inputString.
-     * @throws IOException
+     * @throws IOException on a file operation failure (e.g., reading properties).
      */
     @Override
     public ArrayList<String> removePunctuation(String inputString) throws IOException {
@@ -70,7 +71,6 @@ class TokenizerLucene implements TokenizerInterface {
             }
             tokenStream.end();
         }
-
         return tokenizedString;
     }
 

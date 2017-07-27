@@ -1,5 +1,8 @@
 package net.nunoachenriques.vader;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,8 +10,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author Animesh Pandey Created on 4/14/2016.
@@ -72,7 +73,7 @@ public class TestNLTKTweets {
     }
 
     private String getErrorMessage(String message, float actual, float expected, String type) {
-        return String.format("Test String: %s ==> %s (actual = %s, expectd = %s)", message, type, actual, expected);
+        return String.format("Test String: %s ==> %s (actual = %s, expected = %s)", message, type, actual, expected);
     }
 
     private int noOfDecimalDigits(float value) {
@@ -89,8 +90,8 @@ public class TestNLTKTweets {
      * error(0.0345, 0.0344) => false error(0.0345, 0.0346) => false
      * error(0.0345, 0.0348) => true
      *
-     * @param actual
-     * @param experiment
+     * @param actual Actual error value.
+     * @param experiment Running error value.
      * @return true iff the difference between actual and experiment is greater
      * than 1.0
      */

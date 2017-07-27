@@ -1,5 +1,8 @@
 package net.nunoachenriques.vader.lexicon;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * This class contains the constants that are the used by the sentiment analysis
@@ -28,6 +29,7 @@ public class English {
 
     private static final Logger LOGGER = LogManager.getLogger(English.class);
     private static final ClassLoader LOADER = English.class.getClassLoader();
+    private static final String LEXICON_ENGLISH_FILE = "vader_sentiment_lexicon_english.txt";
 
     private static final String[] PUNCTUATION_LIST_array = {
         ".", "!", "?", ",", ";", ":", "-", "'", "\"", "!!", "!!!", "??", "???", "?!?", "!?!", "?!?!", "!?!?"
@@ -140,7 +142,7 @@ public class English {
         return m;
     }
 
-    public static HashMap<String, Float> WORD_VALENCE_DICTIONARY = getWordValenceDictionary("vader_sentiment_lexicon_english.txt");
+    public static HashMap<String, Float> WORD_VALENCE_DICTIONARY = getWordValenceDictionary(LEXICON_ENGLISH_FILE);
 
     public static boolean isUpper(String token) {
         if (token.toLowerCase().startsWith("http://")) {

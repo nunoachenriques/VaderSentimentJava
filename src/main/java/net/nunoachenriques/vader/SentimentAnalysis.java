@@ -1,15 +1,17 @@
 package net.nunoachenriques.vader;
 
-import net.nunoachenriques.vader.text.Properties;
 import net.nunoachenriques.vader.lexicon.English;
+import net.nunoachenriques.vader.text.Properties;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * The SentimentAnalysis class is the main class for VADER Sentiment Analysis.
@@ -66,6 +68,8 @@ import org.apache.logging.log4j.Logger;
 public class SentimentAnalysis {
 
     private static final Logger LOGGER = LogManager.getLogger(SentimentAnalysis.class);
+    private static final float NORMALIZE_SCORE_ALPHA_DEFAULT = 15.0f;
+
     private String text;
     private Properties textProperties;
     private HashMap<String, Float> polarity;
@@ -81,10 +85,10 @@ public class SentimentAnalysis {
 
     /**
      * Sets the text sample intended for sentiment analysis and does all the
-     * text properties preprocessing. Polarity is reset, i.e., {@code null}.
+     * text properties processing. Polarity is reset, i.e., {@code null}.
      *
      * @param s The text sample.
-     * @throws IOException
+     * @throws IOException on a file operation failure (e.g., reading properties).
      */
     public void setText(String s) throws IOException {
         text = s;
@@ -123,7 +127,7 @@ public class SentimentAnalysis {
      * @param s Text sample to analyse.
      * @return The list of positive, neutral, negative, and compound name-value
      * pairs.
-     * @throws java.io.IOException
+     * @throws IOException on a file operation failure (e.g., reading properties).
      */
     public final HashMap<String, Float> getSentimentAnalysis(String s) throws IOException {
         text = s;
@@ -155,7 +159,7 @@ public class SentimentAnalysis {
         ArrayList<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
 
         if (startI == 0) {
-            if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(i - 1))))) {
+            if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(i - 1))), English.NEGATIVE_WORDS)) {
                 currentValence *= English.N_SCALAR;
             }
         }
@@ -165,7 +169,7 @@ public class SentimentAnalysis {
             String wordAtDistanceOneLeft = wordsAndEmoticons.get(i - 1);
             if ((wordAtDistanceTwoLeft.equals("never")) && (wordAtDistanceOneLeft.equals("so") || (wordAtDistanceOneLeft.equals("this")))) {
                 currentValence *= 1.5f;
-            } else if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(closeTokenIndex))))) {
+            } else if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(closeTokenIndex))), English.NEGATIVE_WORDS)) {
                 currentValence *= English.N_SCALAR;
             }
         }
@@ -178,7 +182,7 @@ public class SentimentAnalysis {
                     && (wordAtDistanceTwoLeft.equals("so") || wordAtDistanceTwoLeft.equals("this"))
                     || (wordAtDistanceOneLeft.equals("so") || wordAtDistanceOneLeft.equals("this"))) {
                 currentValence *= 1.25f;
-            } else if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(closeTokenIndex))))) {
+            } else if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(closeTokenIndex))), English.NEGATIVE_WORDS)) {
                 currentValence *= English.N_SCALAR;
             }
         }
@@ -272,7 +276,7 @@ public class SentimentAnalysis {
                 LOGGER.debug(String.format("Current Valence post all CAPS checks: %f", currentValence));
 
                 int startI = 0;
-                float gramBasedValence = 0.0f;
+                float gramBasedValence;
                 while (startI < 3) {
                     int closeTokenIndex = i - (startI + 1);
                     if (closeTokenIndex < 0) {
@@ -495,7 +499,7 @@ public class SentimentAnalysis {
     }
 
     private boolean isNegative(ArrayList<String> tokenList, ArrayList<String> newNegWords, boolean checkContractions) {
-        newNegWords.addAll(English.NEGATIVE_WORDS);
+        //newNegWords.addAll(English.NEGATIVE_WORDS);
         boolean result = hasNegativeWord(tokenList, newNegWords) || hasAtLeast(tokenList);
         if (checkContractions) {
             return result;
@@ -504,12 +508,8 @@ public class SentimentAnalysis {
     }
 
     private boolean isNegative(ArrayList<String> tokenList, ArrayList<String> newNegWords) {
-        newNegWords.addAll(English.NEGATIVE_WORDS);
-        return hasNegativeWord(tokenList, newNegWords) || hasAtLeast(tokenList) || hasContraction(tokenList);
-    }
-
-    private boolean isNegative(ArrayList<String> tokenList) {
-        return hasNegativeWord(tokenList, English.NEGATIVE_WORDS) || hasAtLeast(tokenList) || hasContraction(tokenList);
+        return isNegative(tokenList, newNegWords, false);
+        //return hasNegativeWord(tokenList, English.NEGATIVE_WORDS) || hasAtLeast(tokenList) || hasContraction(tokenList);
     }
 
     private float normalizeScore(float score, float alpha) {
@@ -518,8 +518,7 @@ public class SentimentAnalysis {
     }
 
     private float normalizeScore(float score) {
-        double normalizedScore = score / Math.sqrt((score * score) + 15.0f);
-        return (float) normalizedScore;
+        return normalizeScore(score, NORMALIZE_SCORE_ALPHA_DEFAULT);
     }
 
     private static float roundDecimal(float currentValue, int roundTo) {

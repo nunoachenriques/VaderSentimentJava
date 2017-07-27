@@ -16,10 +16,10 @@ dependencies {
     compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version:'5.5.4'
     compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
     // LOGGER
-    compile 'org.apache.logging.log4j:log4j-api:2.8.+'
-    compile 'org.apache.logging.log4j:log4j-core:2.8.+'
+    compile 'org.apache.logging.log4j:log4j-api:2.8.2'
+    compile 'org.apache.logging.log4j:log4j-core:2.8.2'
     // JUNIT
-    testCompile 'junit:junit:4.+'
+    testCompile 'junit:junit:4.12'
 }
 
 // EXTRA PACKAGING FOR RELEASE DISTRIBUTION

@@ -21,7 +21,7 @@ https://github.com/nunoachenriques/vader-sentiment-analysis
 
 ## Citation
 
-If you use either the dataset or any of the VADER sentiment analysis
+If you use either the data set or any of the VADER sentiment analysis
 tools (VADER sentiment lexicon or Python code for rule-based sentiment
 analysis engine) in your research, please cite the original paper:
 
@@ -38,10 +38,12 @@ Retrieved from http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf
 
 1. Get the code from the repository (clone or download).
 
-2. Change to the package root directory and `gradle installDist`.
+2. Change to the package root directory and `./gradlew installDist`.
+   Notice: remember to change `gradle.properties` accordingly your
+   JDK home for 1.7 version compatibility.
 
-3. The JAR packages will be in
-`build/install/vader-sentiment-analysis` directory.
+3. The JAR packages will be in `build/install/vader-sentiment-analysis`
+   directory.
 
 ### From release
 
@@ -55,7 +57,7 @@ original implementation from Hutto & Gilbert in Python and ported to Java by
 Animesh Pandey.
 
 ```shell
-gradle test
+./gradlew test
 ```
 
 ## Use case example
@@ -90,3 +92,21 @@ for (String sentence : sentences) {
 }
 ...
 ```
+
+## License
+
+Copyright 2017 Nuno A. C. Henriques [http://nunoachenriques.net/]
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+[1]: http://www.apache.org/licenses/LICENSE-2.0.html
