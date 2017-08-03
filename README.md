@@ -34,20 +34,20 @@ Retrieved from http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf
 
 ## Install
 
+### From release
+
+https://github.com/nunoachenriques/vader-sentiment-analysis/releases
+
 ### From source code
 
 1. Get the code from the repository (clone or download).
 
 2. Change to the package root directory and `./gradlew installDist`.
-   Notice: remember to change `gradle.properties` accordingly your
+   Notice: remember to change `gradle.properties` accordingly to your
    JDK home for 1.7 version compatibility.
 
 3. The JAR packages will be in `build/install/vader-sentiment-analysis`
    directory.
-
-### From release
-
-https://github.com/nunoachenriques/vader-sentiment-analysis/releases
 
 ## Testing
 
@@ -61,6 +61,8 @@ Animesh Pandey.
 ```
 
 ## Use case example
+
+As a Java library it will easily integrates with a bit of coding.
 
 ```java
 ...
@@ -92,6 +94,22 @@ for (String sentence : sentences) {
 }
 ...
 ```
+
+## Documentation
+
+### From release
+
+https://github.com/nunoachenriques/vader-sentiment-analysis/releases
+
+### From source code
+
+1. Get the code from the repository (clone or download).
+
+2. Change to the package root directory and `./gradlew javadoc`.
+   Notice: remember to change `gradle.properties` accordingly to your
+   JDK home for 1.7 version compatibility.
+
+3. The docs will be in `build/docs/javadoc` directory.
 
 ## License
 

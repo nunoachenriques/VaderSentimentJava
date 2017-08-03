@@ -3,8 +3,8 @@ apply plugin: 'java-library-distribution'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
-version = file("VERSION").getText()
-String applicationName = "VADER Sentiment Analysis in Java"
+version = file('VERSION').getText()
+String applicationName = 'VADER Sentiment Analysis in Java'
 
 println "${applicationName} ${version}"
 
@@ -13,16 +13,16 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version:'5.5.4'
-    compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
-    // LOGGER
-    compile 'org.apache.logging.log4j:log4j-api:2.8.2'
-    compile 'org.apache.logging.log4j:log4j-core:2.8.2'
-    // JUNIT
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(include: ['*.jar'], dir: 'src/main/dist')
+    testImplementation 'junit:junit:4.12'
+}
+
+test {
+    systemProperty('log4j.configurationFile', project.getProperty('log4j.configurationFile'))
 }
 
 // EXTRA PACKAGING FOR RELEASE DISTRIBUTION
+
 task release(dependsOn: ['test', 'distZip', 'sourcesZip', 'javadocZip'])
 
 task sourcesZip(type: Zip, dependsOn: 'classes') {

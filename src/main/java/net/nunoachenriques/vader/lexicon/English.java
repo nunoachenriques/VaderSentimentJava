@@ -29,7 +29,7 @@ public class English {
 
     private static final Logger LOGGER = LogManager.getLogger(English.class);
     private static final ClassLoader LOADER = English.class.getClassLoader();
-    private static final String LEXICON_ENGLISH_FILE = "vader_sentiment_lexicon_english.txt";
+    private static final String LEXICON_ENGLISH_FILE = "net/nunoachenriques/vader/lexicon_english.txt";
 
     private static final String[] PUNCTUATION_LIST_array = {
         ".", "!", "?", ",", ";", ":", "-", "'", "\"", "!!", "!!!", "??", "???", "?!?", "!?!", "?!?!", "!?!?"
