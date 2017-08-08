@@ -2,9 +2,6 @@ package net.nunoachenriques.vader.text;
 
 import net.nunoachenriques.vader.lexicon.English;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,8 +15,6 @@ import java.util.Collections;
  * @see net.nunoachenriques.vader.lexicon.English
  */
 public class Properties {
-
-    private static final Logger LOGGER = LogManager.getLogger(Properties.class);
 
     private final String inputText;
     private ArrayList<String> wordsAndEmoticons;
@@ -78,22 +73,16 @@ public class Properties {
     private boolean isAllCapDifferential() {
         int countAllCaps = 0;
         for (String s : wordsAndEmoticons) {
-            LOGGER.debug(s + "\t" + English.isUpper(s));
             if (English.isUpper(s)) {
                 countAllCaps++;
             }
         }
         int capDifferential = wordsAndEmoticons.size() - countAllCaps;
-        LOGGER.debug(wordsAndEmoticons.size() + "\t" + capDifferential + "\t" + countAllCaps);
         return (0 < capDifferential) && (capDifferential < wordsAndEmoticons.size());
     }
 
     public ArrayList<String> getWordsAndEmoticons() {
         return wordsAndEmoticons;
-    }
-
-    public ArrayList<String> getWordsOnly() {
-        return wordsOnly;
     }
 
     public boolean isCapDIff() {

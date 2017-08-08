@@ -1,7 +1,6 @@
 package net.nunoachenriques.vader.lexicon;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.pmw.tinylog.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,7 +26,6 @@ import java.util.Map;
  */
 public class English {
 
-    private static final Logger LOGGER = LogManager.getLogger(English.class);
     private static final ClassLoader LOADER = English.class.getClassLoader();
     private static final String LEXICON_ENGLISH_FILE = "net/nunoachenriques/vader/lexicon_english.txt";
 
@@ -172,7 +170,7 @@ public class English {
                     lexDictionary.put(currentText, currentTextValence);
                 }
             } catch (IOException ioe) {
-                LOGGER.error(ioe.getLocalizedMessage());
+                Logger.error(ioe.getLocalizedMessage());
             }
         }
         return lexDictionary;

@@ -17,10 +17,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-test {
-    systemProperty('log4j.configurationFile', project.getProperty('log4j.configurationFile'))
-}
-
 // EXTRA PACKAGING FOR RELEASE DISTRIBUTION
 
 task release(dependsOn: ['test', 'distZip', 'sourcesZip', 'javadocZip'])
