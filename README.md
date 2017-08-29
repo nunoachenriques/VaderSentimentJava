@@ -4,16 +4,23 @@ VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon
 and rule-based sentiment analysis tool that is _specifically attuned
 to sentiments expressed in social media_.
 
-This is a fork with **API and package names breaking changes** of the
+This is an implementation of the VADER in Java. It started as a fork of the
 [Java port by Animesh Pandey](https://github.com/apanimesh061/VaderSentimentJava)
-of the
-[NLTK VADER sentiment analysis module](http://www.nltk.org/api/nltk.sentiment.html#module-nltk.sentiment.vader)
-written in Python and optimized from the original.
+of the [NLTK VADER sentiment analysis module](http://www.nltk.org/api/nltk.sentiment.html#module-nltk.sentiment.vader)
+written in Python ([NLTK VADER source code](http://www.nltk.org/_modules/nltk/sentiment/vader.html))
+from the [original project](https://github.com/cjhutto/vaderSentiment) by
+the paper's author C.J. Hutto. It's the same algorithm as an improved
+tool by extensive rewriting with **relevant changes**:
+ 
+ - Android ready.
+ - API and package names breaking changes.
+ - Java 1.7 compatible.
+ - Performance improvements (e.g., `LinkedList` where's better O() than
+   `ArrayList`).
 
- - The [NLTK](http://www.nltk.org/_modules/nltk/sentiment/vader.html)
-   Python source code.
- - The [Original](https://github.com/cjhutto/vaderSentiment) Python
-   source code by the paper's author C.J. Hutto.
+**In progress**
+
+ - Multi-language (refer to section [Languages](#languages)).
 
 ## Repository
 
@@ -51,22 +58,39 @@ https://github.com/nunoachenriques/vader-sentiment-analysis/releases
 
 ## Testing
 
-The tests from the original Java port are validated against the ground truth of
-the original Python (NLTK) implementation. The algorithm running is still the
-original implementation from Hutto & Gilbert in Python and ported to Java by
-Animesh Pandey.
+All tests are **100% OK** as expected!
 
 ```shell
 ./gradlew test
 ```
 
+## Languages
+
+To support several languages there's the `Language` interface
+(`text` subpackage) to be implemented and, eventually, the `Tokenizer` too.
+The **main effort** will be in all the research around the specific language
+significant words, idiomatic expressions, constant and empirical values.
+Moreover, a data set has to be produced and validated by humans as
+_ground truth_ for testing purposes.
+
+### English (Germanic family of languages)
+
+The tests from the original Java port are validated against the _ground truth_
+of the original Python (NLTK) implementation. The algorithm running is still the
+original implementation from Hutto & Gilbert in Python and originally ported to
+Java by Animesh Pandey with modifications by Nuno A. C. Henriques.
+
+### Portuguese (Italic family of languages)
+
+**TODO**
+
 ## Use case example
 
-As a Java library it will easily integrates with a bit of coding.
+As a Java library it will easily integrate with a bit of coding.
 
 ```java
 ...
-ArrayList<String> sentences = new ArrayList<String>() {{
+List<String> sentences = new LinkedList<>() {{
     add("VADER is smart, handsome, and funny.");
     add("VADER is smart, handsome, and funny!");
     add("VADER is very smart, handsome, and funny.");
@@ -86,7 +110,7 @@ ArrayList<String> sentences = new ArrayList<String>() {{
     add("Today kinda sux! But I'll get by, lol");
 }};
 
-SentimentAnalysis sa = new SentimentAnalysis();
+SentimentAnalysis sa = new SentimentAnalysis(new TokenizerEnglish(), new English());
 
 for (String sentence : sentences) {
     System.out.println(sentence);

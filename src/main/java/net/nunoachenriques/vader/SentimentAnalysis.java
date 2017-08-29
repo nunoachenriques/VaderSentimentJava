@@ -1,62 +1,69 @@
+/*
+ * Copyright 2017 Nuno A. C. Henriques [nunoachenriques.net]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.nunoachenriques.vader;
 
 import net.nunoachenriques.vader.lexicon.English;
+import net.nunoachenriques.vader.lexicon.Language;
 import net.nunoachenriques.vader.text.Properties;
+import net.nunoachenriques.vader.text.Tokenizer;
+import net.nunoachenriques.vader.text.TokenizerEnglish;
 
-import org.apache.commons.lang.StringUtils;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The SentimentAnalysis class is the main class for VADER Sentiment Analysis.
- * Use cases:
- * <h2>I Step-by-step individual operations.</h2>
+ * Since version 2.0 is multi-language ready and Android ready! Use cases:
+ * <h2>I. Several samples, same language.</h2>
  * <pre>
  * ...
  * {@code
- * SentimentAnalysis sa = new SentimentAnalysis();
+ * SentimentAnalysis sa = new SentimentAnalysis(new TokenizerEnglish(), new English());
  * Map<String,Float> sp;
  * String s1 = "VADER is smart, handsome, and funny!";
  * String s2 = "VADER sometimes fails too as everyone else!";
- * ...
- * sa.setText(s1);
- * sp = sa.getPolarity();
- * System.out.println(sa.getText() + " *** " + sp.toString());
- * ...
- * System.out.println(sa.getText());
- * System.out.println(sa.getPolarity());
- * ...
- * sa.setText(s2);
- * sp = sa.getPolarity();
- * System.out.println(sa.getText() + " *** " + sp.toString());
- * ...
- * System.out.println(sa.getText());
- * System.out.println(sa.getPolarity());
+ *
+ * sp = sa.getSentimentAnalysis(s1);
+ * System.out.println(s1 + " *** " + sp.toString());
+ * sp = sa.getSentimentAnalysis(s2);
+ * System.out.println(s2 + " *** " + sp.toString());
  * }
  * ...
  * </pre>
- * <h2>II One-step all-in-one operation.</h2>
+ * <h2>II. Several samples, multiple languages.</h2>
  * <pre>
  * ...
  * {@code
  * SentimentAnalysis sa = new SentimentAnalysis();
  * Map<String,Float> sp;
  * String s1 = "VADER is smart, handsome, and funny!";
- * String s2 = "VADER sometimes fails too as everyone else!";
- * ...
- * sp = sa.getSentimentAnalysis(s1);
- * System.out.println(sa.getText() + " *** " + sp.toString());
- * sp = sa.getSentimentAnalysis(s2);
- * System.out.println(sa.getText() + " *** " + sp.toString());
+ * String s2 = "VADER por vezes falha como todas as pessoas!";
+ *
+ * sp = sa.getSentimentAnalysis(s1, new TokenizerEnglish(), new English());
+ * System.out.println(s1 + " *** " + sp.toString());
+ * sp = sa.getSentimentAnalysis(s2, new TokenizerPortuguese(), new Portuguese());
+ * System.out.println(s2 + " *** " + sp.toString());
  * }
  * ...
  * </pre>
  *
- * @author Animesh Pandey Created on 4/11/2016.
  * @author Nuno A. C. Henriques [nunoachenriques.net]
  * @see
  * <a href="http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf">VADER:
@@ -65,192 +72,125 @@ import java.util.HashMap;
  */
 public class SentimentAnalysis {
 
-    private static final float NORMALIZE_SCORE_ALPHA_DEFAULT = 15.0f;
+    // Available languages (e.g., "en").
+    // TODO automatic detection of all languages?!
+    private static final List<String> LANGUAGES = Collections.singletonList("en");
 
     private String text;
+    private Language language;
+    private Tokenizer tokenizer;
     private Properties textProperties;
-    private HashMap<String, Float> polarity;
 
     /**
-     * Default constructor without arguments.
+     * Default constructor with all parameters {@code null}.
      */
     public SentimentAnalysis() {
         text = null;
+        language = null;
+        tokenizer = null;
         textProperties = null;
-        polarity = null;
     }
 
     /**
-     * Sets the text sample intended for sentiment analysis and does all the
-     * text properties processing. Polarity is reset, i.e., {@code null}.
+     * Default constructor with two required parameters: tokenizer and language.
      *
-     * @param s The text sample.
-     * @throws IOException on a file operation failure (e.g., reading properties).
+     * @param l The text {@link Language}
+     *          (e.g., {@link net.nunoachenriques.vader.lexicon.English}).
+     * @param t The text {@link Tokenizer} to be used
+     *          (e.g., {@link net.nunoachenriques.vader.text.TokenizerEnglish}).
      */
-    public void setText(String s) throws IOException {
-        text = s;
-        textProperties = new Properties(s);
-        polarity = null;
+    public SentimentAnalysis(Language l, Tokenizer t) {
+        text = null;
+        language = l;
+        tokenizer = t;
+        textProperties = null;
     }
 
     /**
-     * Gets the current text sample intended for sentiment analysis.
-     *
-     * @return The text sample.
-     */
-    public String getText() {
-        return text;
-    }
-
-    /**
-     * Gets the polarity of the current text sample sentiment analysis. If the
-     * analysis is not done yet, i.e., polarity is {@code null} and the text is
-     * not {@code null}, then does the sentiment analysis before returning.
-     *
-     * @return The list of positive, neutral, negative, and compound name-value
-     * pairs.
-     */
-    public HashMap<String, Float> getPolarity() {
-        if (polarity == null && text != null) {
-            polarity = getSentiment();
-        }
-        return polarity;
-    }
-
-    /**
-     * Does the sentiment analysis of the given text sample, sets and returns
+     * Does the sentiment analysis of the given text sample and returns
      * the polarity values.
      *
      * @param s Text sample to analyse.
      * @return The list of positive, neutral, negative, and compound name-value
      * pairs.
-     * @throws IOException on a file operation failure (e.g., reading properties).
      */
-    public final HashMap<String, Float> getSentimentAnalysis(String s) throws IOException {
+    public Map<String, Float> getSentimentAnalysis(String s) {
         text = s;
-        textProperties = new Properties(s);
-        polarity = getSentiment();
-        return polarity;
+        textProperties = new Properties(s, language, tokenizer);
+        return getPolarity();
     }
 
-    private float valenceModifier(String precedingWord, float currentValence) {
-        float scalar = 0.0f;
-        String precedingWordLower = precedingWord.toLowerCase();
-        if (English.BOOSTER_DICTIONARY.containsKey(precedingWordLower)) {
-            scalar = English.BOOSTER_DICTIONARY.get(precedingWordLower);
-            if (currentValence < 0.0) {
-                scalar *= -1.0;
-            }
-            if (English.isUpper(precedingWord) && textProperties.isCapDIff()) {
-                scalar = (currentValence > 0.0) ? scalar + English.ALL_CAPS_BOOSTER_SCORE : scalar - English.ALL_CAPS_BOOSTER_SCORE;
-            }
-        }
-        return scalar;
-    }
-
-    private int pythonIndexToJavaIndex(int pythonIndex) {
-        return textProperties.getWordsAndEmoticons().size() - Math.abs(pythonIndex);
-    }
-
-    private float checkForNever(float currentValence, int startI, int i, int closeTokenIndex) {
-        ArrayList<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
-
-        if (startI == 0) {
-            if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(i - 1))), English.NEGATIVE_WORDS)) {
-                currentValence *= English.N_SCALAR;
-            }
-        }
-
-        if (startI == 1) {
-            String wordAtDistanceTwoLeft = wordsAndEmoticons.get(i - 2);
-            String wordAtDistanceOneLeft = wordsAndEmoticons.get(i - 1);
-            if ((wordAtDistanceTwoLeft.equals("never")) && (wordAtDistanceOneLeft.equals("so") || (wordAtDistanceOneLeft.equals("this")))) {
-                currentValence *= 1.5f;
-            } else if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(closeTokenIndex))), English.NEGATIVE_WORDS)) {
-                currentValence *= English.N_SCALAR;
-            }
-        }
-
-        if (startI == 2) {
-            String wordAtDistanceThreeLeft = wordsAndEmoticons.get(i - 3);
-            String wordAtDistanceTwoLeft = wordsAndEmoticons.get(i - 2);
-            String wordAtDistanceOneLeft = wordsAndEmoticons.get(i - 1);
-            if ((wordAtDistanceThreeLeft.equals("never"))
-                    && (wordAtDistanceTwoLeft.equals("so") || wordAtDistanceTwoLeft.equals("this"))
-                    || (wordAtDistanceOneLeft.equals("so") || wordAtDistanceOneLeft.equals("this"))) {
-                currentValence *= 1.25f;
-            } else if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(closeTokenIndex))), English.NEGATIVE_WORDS)) {
-                currentValence *= English.N_SCALAR;
-            }
-        }
-
-        return currentValence;
-    }
-
-    private float checkForIdioms(float currentValence, int i) {
-        ArrayList<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
-        final String leftBiGramFromCurrent = String.format("%s %s", wordsAndEmoticons.get(i - 1), wordsAndEmoticons.get(i));
-        final String leftTriGramFromCurrent = String.format("%s %s %s", wordsAndEmoticons.get(i - 2), wordsAndEmoticons.get(i - 1), wordsAndEmoticons.get(i));
-        final String leftBiGramFromOnePrevious = String.format("%s %s", wordsAndEmoticons.get(i - 2), wordsAndEmoticons.get(i - 1));
-        final String leftTriGramFromOnePrevious = String.format("%s %s %s", wordsAndEmoticons.get(i - 3), wordsAndEmoticons.get(i - 2), wordsAndEmoticons.get(i - 1));
-        final String leftBiGramFromTwoPrevious = String.format("%s %s", wordsAndEmoticons.get(i - 3), wordsAndEmoticons.get(i - 2));
-
-        ArrayList<String> leftGramSequences = new ArrayList<String>() {
-            {
-                add(leftBiGramFromCurrent);
-                add(leftTriGramFromCurrent);
-                add(leftBiGramFromOnePrevious);
-                add(leftTriGramFromOnePrevious);
-                add(leftBiGramFromTwoPrevious);
-            }
-        };
-
-        for (String leftGramSequence : leftGramSequences) {
-            if (English.SENTIMENT_LADEN_IDIOMS.containsKey(leftGramSequence)) {
-                currentValence = English.SENTIMENT_LADEN_IDIOMS.get(leftGramSequence);
+    /**
+     * Does the sentiment analysis of the given text sample and returns
+     * the polarity values.
+     *
+     * @param s Text sample to analyse.
+     * @param l Language of the text sample to analyse.
+     * @return The list of positive, neutral, negative, and compound name-value
+     * pairs.
+     */
+    public Map<String, Float> getSentimentAnalysis(String s, String l) {
+        switch (l) {
+            case "en":
+                language = new English();
+                tokenizer = new TokenizerEnglish();
                 break;
-            }
         }
-
-        if (wordsAndEmoticons.size() - 1 > i) {
-            final String rightBiGramFromCurrent = String.format("%s %s", wordsAndEmoticons.get(i), wordsAndEmoticons.get(i + 1));
-            if (English.SENTIMENT_LADEN_IDIOMS.containsKey(rightBiGramFromCurrent)) {
-                currentValence = English.SENTIMENT_LADEN_IDIOMS.get(rightBiGramFromCurrent);
-            }
-        }
-        if (wordsAndEmoticons.size() - 1 > i + 1) {
-            final String rightTriGramFromCurrent = String.format("%s %s %s", wordsAndEmoticons.get(i), wordsAndEmoticons.get(i + 1), wordsAndEmoticons.get(i + 2));
-            if (English.SENTIMENT_LADEN_IDIOMS.containsKey(rightTriGramFromCurrent)) {
-                currentValence = English.SENTIMENT_LADEN_IDIOMS.get(rightTriGramFromCurrent);
-            }
-        }
-
-        if (English.BOOSTER_DICTIONARY.containsKey(leftBiGramFromTwoPrevious) || English.BOOSTER_DICTIONARY.containsKey(leftBiGramFromOnePrevious)) {
-            currentValence += English.DAMPENER_WORD_DECREMENT;
-        }
-
-        return currentValence;
+        return getSentimentAnalysis(s);
     }
 
-    private HashMap<String, Float> getSentiment() {
-        ArrayList<Float> sentiments = new ArrayList<>();
-        ArrayList<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
+    /**
+     * Does the sentiment analysis of the given text sample, using the specified
+     * tokenizer, the specified language parameters, and returns the polarity
+     * values.
+     *
+     * @param s Text sample to analyse.
+     * @param l The text {@link Language} (e.g., {@link English}).
+     * @param t The text {@link Tokenizer} to be used (e.g., {@link TokenizerEnglish}).
+     * @return The list of positive, neutral, negative, and compound name-value
+     * pairs.
+     */
+    public Map<String, Float> getSentimentAnalysis(String s, Language l, Tokenizer t) {
+        tokenizer = t;
+        language = l;
+        return getSentimentAnalysis(s);
+    }
+
+    /**
+     * Gets the languages available for the sentiment analysis process.
+     *
+     * @return List of available languages in ISO 639-1 or 639-3 language code
+     * (e.g., en).
+     */
+    public List<String> getAvailableLanguages() {
+        return LANGUAGES;
+    }
+
+    // TODO hardcoded values (0.95f, 0.9f) to Constant?!
+    private Map<String, Float> getPolarity() {
+        List<Float> sentiments = new ArrayList<>();
+        List<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
+        final Map<String, Float> boosterDictionary = language.getBoosterDictionary();
+        final Map<String, Float> valenceDictionary = language.getWordValenceDictionary();
 
         for (String item : wordsAndEmoticons) {
             float currentValence = 0.0f;
             int i = wordsAndEmoticons.indexOf(item);
+
+            // TODO English language dependent!
             if (i < wordsAndEmoticons.size() - 1
                     && item.toLowerCase().equals("kind")
                     && wordsAndEmoticons.get(i + 1).toLowerCase().equals("of")
-                    || English.BOOSTER_DICTIONARY.containsKey(item.toLowerCase())) {
+                    || boosterDictionary.containsKey(item.toLowerCase())) {
                 sentiments.add(currentValence);
                 continue;
             }
+
             String currentItemLower = item.toLowerCase();
-            if (English.WORD_VALENCE_DICTIONARY.containsKey(currentItemLower)) {
-                currentValence = English.WORD_VALENCE_DICTIONARY.get(currentItemLower);
-                if (English.isUpper(item) && textProperties.isCapDIff()) {
-                    currentValence = (currentValence > 0.0) ? currentValence + English.ALL_CAPS_BOOSTER_SCORE : currentValence - English.ALL_CAPS_BOOSTER_SCORE;
+            if (valenceDictionary.containsKey(currentItemLower)) {
+                currentValence = valenceDictionary.get(currentItemLower);
+                if (language.isUpper(item) && textProperties.isCapDifferential()) {
+                    currentValence = (currentValence > 0.0) ? currentValence + Constant.ALL_CAPS_BOOSTER_SCORE : currentValence - Constant.ALL_CAPS_BOOSTER_SCORE;
                 }
                 int startI = 0;
                 float gramBasedValence;
@@ -259,7 +199,7 @@ public class SentimentAnalysis {
                     if (closeTokenIndex < 0) {
                         closeTokenIndex = pythonIndexToJavaIndex(closeTokenIndex);
                     }
-                    if ((i > startI) && !English.WORD_VALENCE_DICTIONARY.containsKey(wordsAndEmoticons.get(closeTokenIndex).toLowerCase())) {
+                    if ((i > startI) && !valenceDictionary.containsKey(wordsAndEmoticons.get(closeTokenIndex).toLowerCase())) {
                         gramBasedValence = valenceModifier(wordsAndEmoticons.get(closeTokenIndex), currentValence);
                         if (startI == 1 && gramBasedValence != 0.0f) {
                             gramBasedValence *= 0.95f;
@@ -275,12 +215,12 @@ public class SentimentAnalysis {
                     }
                     startI++;
                 }
-                if (i > 1 && !English.WORD_VALENCE_DICTIONARY.containsKey(wordsAndEmoticons.get(i - 1).toLowerCase()) && wordsAndEmoticons.get(i - 1).toLowerCase().equals("least")) {
+                if (i > 1 && !valenceDictionary.containsKey(wordsAndEmoticons.get(i - 1).toLowerCase()) && wordsAndEmoticons.get(i - 1).toLowerCase().equals("least")) {
                     if (!(wordsAndEmoticons.get(i - 2).toLowerCase().equals("at") || wordsAndEmoticons.get(i - 2).toLowerCase().equals("very"))) {
-                        currentValence *= English.N_SCALAR;
+                        currentValence *= Constant.N_SCALAR;
                     }
-                } else if (i > 0 && !English.WORD_VALENCE_DICTIONARY.containsKey(wordsAndEmoticons.get(i - 1).toLowerCase()) && wordsAndEmoticons.get(i - 1).equals("least")) {
-                    currentValence *= English.N_SCALAR;
+                } else if (i > 0 && !valenceDictionary.containsKey(wordsAndEmoticons.get(i - 1).toLowerCase()) && wordsAndEmoticons.get(i - 1).equals("least")) {
+                    currentValence *= Constant.N_SCALAR;
                 }
             }
             sentiments.add(currentValence);
@@ -289,7 +229,115 @@ public class SentimentAnalysis {
         return polarityScores(sentiments);
     }
 
-    private ArrayList<Float> siftSentimentScores(ArrayList<Float> currentSentimentState) {
+    private float valenceModifier(String precedingWord, float currentValence) {
+        float scalar = 0.0f;
+        final Map<String, Float> boosterDictionary = language.getBoosterDictionary();
+        String precedingWordLower = precedingWord.toLowerCase();
+        if (boosterDictionary.containsKey(precedingWordLower)) {
+            scalar = boosterDictionary.get(precedingWordLower);
+            if (currentValence < 0.0) {
+                scalar *= -1.0;
+            }
+            if (language.isUpper(precedingWord) && textProperties.isCapDifferential()) {
+                scalar = (currentValence > 0.0) ? scalar + Constant.ALL_CAPS_BOOSTER_SCORE : scalar - Constant.ALL_CAPS_BOOSTER_SCORE;
+            }
+        }
+        return scalar;
+    }
+
+    private int pythonIndexToJavaIndex(int pythonIndex) {
+        return textProperties.getWordsAndEmoticons().size() - Math.abs(pythonIndex);
+    }
+
+    // TODO hardcoded values (1.5f, 1.25f) to Constant?!
+    private float checkForNever(float currentValence, int startI, int i, int closeTokenIndex) {
+        List<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
+        final List<String> negativeWords = language.getNegativeWords();
+        if (startI == 0) {
+            if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(i - 1))), negativeWords)) {
+                currentValence *= Constant.N_SCALAR;
+            }
+        }
+        if (startI == 1) {
+            String wordAtDistanceTwoLeft = wordsAndEmoticons.get(i - 2);
+            String wordAtDistanceOneLeft = wordsAndEmoticons.get(i - 1);
+
+            // TODO English language dependent!
+            if ((wordAtDistanceTwoLeft.equals("never"))
+                    && (wordAtDistanceOneLeft.equals("so")
+                    || (wordAtDistanceOneLeft.equals("this")))) {
+
+                currentValence *= 1.5f;
+            } else if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(closeTokenIndex))), negativeWords)) {
+                currentValence *= Constant.N_SCALAR;
+            }
+        }
+        if (startI == 2) {
+            String wordAtDistanceThreeLeft = wordsAndEmoticons.get(i - 3);
+            String wordAtDistanceTwoLeft = wordsAndEmoticons.get(i - 2);
+            String wordAtDistanceOneLeft = wordsAndEmoticons.get(i - 1);
+
+            // TODO English language dependent!
+            if ((wordAtDistanceThreeLeft.equals("never"))
+                    && (wordAtDistanceTwoLeft.equals("so") || wordAtDistanceTwoLeft.equals("this"))
+                    || (wordAtDistanceOneLeft.equals("so") || wordAtDistanceOneLeft.equals("this"))) {
+
+                currentValence *= 1.25f;
+            } else if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(closeTokenIndex))), negativeWords)) {
+                currentValence *= Constant.N_SCALAR;
+            }
+        }
+        return currentValence;
+    }
+
+    private float checkForIdioms(float currentValence, int i) {
+        List<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
+        final String leftBiGramFromCurrent = String.format("%s %s", wordsAndEmoticons.get(i - 1), wordsAndEmoticons.get(i));
+        final String leftTriGramFromCurrent = String.format("%s %s %s", wordsAndEmoticons.get(i - 2), wordsAndEmoticons.get(i - 1), wordsAndEmoticons.get(i));
+        final String leftBiGramFromOnePrevious = String.format("%s %s", wordsAndEmoticons.get(i - 2), wordsAndEmoticons.get(i - 1));
+        final String leftTriGramFromOnePrevious = String.format("%s %s %s", wordsAndEmoticons.get(i - 3), wordsAndEmoticons.get(i - 2), wordsAndEmoticons.get(i - 1));
+        final String leftBiGramFromTwoPrevious = String.format("%s %s", wordsAndEmoticons.get(i - 3), wordsAndEmoticons.get(i - 2));
+        final Map<String, Float> boosterDictionary = language.getBoosterDictionary();
+        final Map<String, Float> sentimentLadenIdioms = language.getSentimentLadenIdioms();
+
+        List<String> leftGramSequences = new ArrayList<String>() {
+            {
+                add(leftBiGramFromCurrent);
+                add(leftTriGramFromCurrent);
+                add(leftBiGramFromOnePrevious);
+                add(leftTriGramFromOnePrevious);
+                add(leftBiGramFromTwoPrevious);
+            }
+        };
+
+        for (String leftGramSequence : leftGramSequences) {
+            if (sentimentLadenIdioms.containsKey(leftGramSequence)) {
+                currentValence = sentimentLadenIdioms.get(leftGramSequence);
+                break;
+            }
+        }
+
+        if (wordsAndEmoticons.size() - 1 > i) {
+            final String rightBiGramFromCurrent = String.format("%s %s", wordsAndEmoticons.get(i), wordsAndEmoticons.get(i + 1));
+            if (sentimentLadenIdioms.containsKey(rightBiGramFromCurrent)) {
+                currentValence = sentimentLadenIdioms.get(rightBiGramFromCurrent);
+            }
+        }
+        if (wordsAndEmoticons.size() - 1 > i + 1) {
+            final String rightTriGramFromCurrent = String.format("%s %s %s", wordsAndEmoticons.get(i), wordsAndEmoticons.get(i + 1), wordsAndEmoticons.get(i + 2));
+            if (sentimentLadenIdioms.containsKey(rightTriGramFromCurrent)) {
+                currentValence = sentimentLadenIdioms.get(rightTriGramFromCurrent);
+            }
+        }
+
+        if (boosterDictionary.containsKey(leftBiGramFromTwoPrevious) || boosterDictionary.containsKey(leftBiGramFromOnePrevious)) {
+            currentValence += -0.293f; // TODO review Language and English.DAMPENER_WORD_DECREMENT;
+        }
+
+        return currentValence;
+    }
+
+    private List<Float> siftSentimentScores(List<Float> currentSentimentState) {
         float positiveSentimentScore = 0.0f;
         float negativeSentimentScore = 0.0f;
         int neutralSentimentCount = 0;
@@ -309,7 +357,8 @@ public class SentimentAnalysis {
         );
     }
 
-    private HashMap<String, Float> polarityScores(ArrayList<Float> currentSentimentState) {
+    // TODO hardcoded values (4) to Constant?!
+    private Map<String, Float> polarityScores(List<Float> currentSentimentState) {
         if (!currentSentimentState.isEmpty()) {
             float totalValence = 0.0f;
             for (Float valence : currentSentimentState) {
@@ -321,8 +370,8 @@ public class SentimentAnalysis {
             } else if (totalValence < 0.0f) {
                 totalValence -= boostByPunctuation();
             }
-            float compoundPolarity = normalizeScore(totalValence);
-            ArrayList<Float> siftedScores = siftSentimentScores(currentSentimentState);
+            float compoundPolarity = normalizeScore(totalValence, Constant.NORMALIZE_SCORE_ALPHA_DEFAULT);
+            List<Float> siftedScores = siftSentimentScores(currentSentimentState);
             float positiveSentimentScore = siftedScores.get(0);
             float negativeSentimentScore = siftedScores.get(1);
             int neutralSentimentCount = Math.round(siftedScores.get(2));
@@ -363,25 +412,32 @@ public class SentimentAnalysis {
     }
 
     private float boostByExclamation() {
-        int exclamationCount = StringUtils.countMatches(text, "!");
-        return Math.min(exclamationCount, 4) * English.EXCLAMATION_BOOST;
+        int exclamationCount = Properties.countLetter(text, "!");
+        return Math.min(exclamationCount, 4) * Constant.EXCLAMATION_BOOST;
     }
 
     private float boostByQuestionMark() {
-        int questionMarkCount = StringUtils.countMatches(text, "?");
         float questionMarkAmplifier = 0.0f;
+        int questionMarkCount = Properties.countLetter(text, "?");
         if (questionMarkCount > 1) {
-            questionMarkAmplifier = (questionMarkCount <= 3) ? questionMarkCount * English.QUESTION_BOOST_COUNT_3 : English.QUESTION_BOOST;
+            questionMarkAmplifier =
+                    (questionMarkCount <= 3)
+                            ? questionMarkCount * Constant.QUESTION_BOOST_COUNT_3
+                            : Constant.QUESTION_BOOST;
         }
         return questionMarkAmplifier;
     }
 
-    private ArrayList<Float> checkConjunctionBut(ArrayList<String> inputTokens, ArrayList<Float> currentSentimentState) {
+    // TODO hardcoded values (0.5f, 1.5f) to Constant?!
+    private List<Float> checkConjunctionBut(List<String> inputTokens, List<Float> currentSentimentState) {
+
+        // TODO English language dependent!
         if (inputTokens.contains("but") || inputTokens.contains("BUT")) {
             int index = inputTokens.indexOf("but");
             if (index == -1) {
                 index = inputTokens.indexOf("BUT");
             }
+
             for (Float valence : currentSentimentState) {
                 int currentValenceIndex = currentSentimentState.indexOf(valence);
                 if (currentValenceIndex < index) {
@@ -394,26 +450,32 @@ public class SentimentAnalysis {
         return currentSentimentState;
     }
 
-    private boolean hasAtLeast(ArrayList<String> tokenList) {
+    private boolean hasAtLeast(List<String> tokenList) {
+
+        // TODO English language dependent!
         if (tokenList.contains("least")) {
             int index = tokenList.indexOf("least");
             if (index > 0 && tokenList.get(index - 1).equals("at")) {
+
                 return true;
             }
         }
         return false;
     }
 
-    private boolean hasContraction(ArrayList<String> tokenList) {
+    private boolean hasContraction(List<String> tokenList) {
         for (String s : tokenList) {
+
+            // TODO English language dependent!
             if (s.endsWith("n't")) {
+
                 return true;
             }
         }
         return false;
     }
 
-    private boolean hasNegativeWord(ArrayList<String> tokenList, ArrayList<String> newNegWords) {
+    private boolean hasNegativeWord(List<String> tokenList, List<String> newNegWords) {
         for (String newNegWord : newNegWords) {
             if (tokenList.contains(newNegWord)) {
                 return true;
@@ -422,27 +484,14 @@ public class SentimentAnalysis {
         return false;
     }
 
-    private boolean isNegative(ArrayList<String> tokenList, ArrayList<String> newNegWords, boolean checkContractions) {
-        //newNegWords.addAll(English.NEGATIVE_WORDS);
-        boolean result = hasNegativeWord(tokenList, newNegWords) || hasAtLeast(tokenList);
-        if (checkContractions) {
-            return result;
-        }
-        return result || hasContraction(tokenList);
-    }
-
-    private boolean isNegative(ArrayList<String> tokenList, ArrayList<String> newNegWords) {
-        return isNegative(tokenList, newNegWords, false);
-        //return hasNegativeWord(tokenList, English.NEGATIVE_WORDS) || hasAtLeast(tokenList) || hasContraction(tokenList);
+    private boolean isNegative(List<String> tokenList, List<String> newNegWords) {
+        return hasNegativeWord(tokenList, newNegWords)
+                || hasAtLeast(tokenList)
+                || hasContraction(tokenList);
     }
 
     private float normalizeScore(float score, float alpha) {
-        double normalizedScore = score / Math.sqrt((score * score) + alpha);
-        return (float) normalizedScore;
-    }
-
-    private float normalizeScore(float score) {
-        return normalizeScore(score, NORMALIZE_SCORE_ALPHA_DEFAULT);
+        return (float) (score / Math.sqrt((score * score) + alpha));
     }
 
     private static float roundDecimal(float currentValue, int roundTo) {

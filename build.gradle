@@ -15,6 +15,14 @@ repositories {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'src/main/dist')
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.apache.lucene:lucene-core:5.5.4'
+    testImplementation 'org.apache.lucene:lucene-analyzers-common:5.5.4'
+}
+
+test {
+    // For comparision only, different results on Tokenizer vs. Lucene
+    // but final ground truth results are the same (expected).
+    exclude 'net/nunoachenriques/vader/text/Tokenizer*'
 }
 
 // EXTRA PACKAGING FOR RELEASE DISTRIBUTION

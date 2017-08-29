@@ -4,12 +4,14 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from unidecode import unidecode
 
 """
-This script uses the NLTK to get the sentiment polarities of 4000 Tweets from "tweets_GroundTruth.txt"
-DATASET: http://comp.social.gatech.edu/papers/hutto_ICWSM_2014.tar.gz
-PAPER: http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf
+This script uses the NLTK implementation of VADER to get the sentiment
+polarities of all the original files with ground truth values.
 
-The file tweets_GroundTruth_Vader.tsv created using this script serves as the ground truth for comparing
-results of the JAVA post of NLTK vader sentiment analyzer.
+Data set: http://comp.social.gatech.edu/papers/hutto_ICWSM_2014.tar.gz
+Article: http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf
+
+The TSV files created using this script serve as the ground truth for comparing
+results of the Java port of the NLTK VADER sentiment analyzer.
 """
 
 sid = SentimentIntensityAnalyzer()
