@@ -29,12 +29,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The SentimentAnalysis class is the main class for VADER Sentiment Analysis.
- * Since version 2.0 is multi-language ready and Android ready! Use cases:
+ * <p>The SentimentAnalysis class is the main class for VADER Sentiment Analysis.
+ * Since version 2.0 is multi-language ready and Android ready! Use cases:</p>
+ *
  * <h2>I. Several samples, same language.</h2>
  * <pre>
  * ...
- * {@code
+ * <code>
  * SentimentAnalysis sa = new SentimentAnalysis(new TokenizerEnglish(), new English());
  * Map<String,Float> sp;
  * String s1 = "VADER is smart, handsome, and funny!";
@@ -44,13 +45,14 @@ import java.util.Map;
  * System.out.println(s1 + " *** " + sp.toString());
  * sp = sa.getSentimentAnalysis(s2);
  * System.out.println(s2 + " *** " + sp.toString());
- * }
+ * </code>
  * ...
  * </pre>
+ *
  * <h2>II. Several samples, multiple languages.</h2>
  * <pre>
  * ...
- * {@code
+ * <code>
  * SentimentAnalysis sa = new SentimentAnalysis();
  * Map<String,Float> sp;
  * String s1 = "VADER is smart, handsome, and funny!";
@@ -60,15 +62,12 @@ import java.util.Map;
  * System.out.println(s1 + " *** " + sp.toString());
  * sp = sa.getSentimentAnalysis(s2, new TokenizerPortuguese(), new Portuguese());
  * System.out.println(s2 + " *** " + sp.toString());
- * }
+ * </code>
  * ...
  * </pre>
  *
  * @author Nuno A. C. Henriques [nunoachenriques.net]
- * @see
- * <a href="http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf">VADER:
- * A Parsimonious Rule-based Model for Sentiment Analysis of Social Media
- * Text</a>
+ * @see <a href="http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf" target="_blank">VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text</a>
  */
 public class SentimentAnalysis {
 
@@ -84,6 +83,7 @@ public class SentimentAnalysis {
     /**
      * Default constructor with all parameters {@code null}.
      */
+    @SuppressWarnings("WeakerAccess")
     public SentimentAnalysis() {
         text = null;
         language = null;
@@ -92,13 +92,15 @@ public class SentimentAnalysis {
     }
 
     /**
-     * Default constructor with two required parameters: tokenizer and language.
+     * Sets two required parameters: tokenizer and language. All the others
+     * initialize as {@code null}.
      *
      * @param l The text {@link Language}
      *          (e.g., {@link net.nunoachenriques.vader.lexicon.English}).
      * @param t The text {@link Tokenizer} to be used
      *          (e.g., {@link net.nunoachenriques.vader.text.TokenizerEnglish}).
      */
+    @SuppressWarnings("WeakerAccess")
     public SentimentAnalysis(Language l, Tokenizer t) {
         text = null;
         language = l;
@@ -300,15 +302,13 @@ public class SentimentAnalysis {
         final Map<String, Float> boosterDictionary = language.getBoosterDictionary();
         final Map<String, Float> sentimentLadenIdioms = language.getSentimentLadenIdioms();
 
-        List<String> leftGramSequences = new ArrayList<String>() {
-            {
-                add(leftBiGramFromCurrent);
-                add(leftTriGramFromCurrent);
-                add(leftBiGramFromOnePrevious);
-                add(leftTriGramFromOnePrevious);
-                add(leftBiGramFromTwoPrevious);
-            }
-        };
+        List<String> leftGramSequences = new ArrayList<String>() {{
+            add(leftBiGramFromCurrent);
+            add(leftTriGramFromCurrent);
+            add(leftBiGramFromOnePrevious);
+            add(leftTriGramFromOnePrevious);
+            add(leftBiGramFromTwoPrevious);
+        }};
 
         for (String leftGramSequence : leftGramSequences) {
             if (sentimentLadenIdioms.containsKey(leftGramSequence)) {
@@ -316,7 +316,6 @@ public class SentimentAnalysis {
                 break;
             }
         }
-
         if (wordsAndEmoticons.size() - 1 > i) {
             final String rightBiGramFromCurrent = String.format("%s %s", wordsAndEmoticons.get(i), wordsAndEmoticons.get(i + 1));
             if (sentimentLadenIdioms.containsKey(rightBiGramFromCurrent)) {
@@ -329,11 +328,9 @@ public class SentimentAnalysis {
                 currentValence = sentimentLadenIdioms.get(rightTriGramFromCurrent);
             }
         }
-
         if (boosterDictionary.containsKey(leftBiGramFromTwoPrevious) || boosterDictionary.containsKey(leftBiGramFromOnePrevious)) {
             currentValence += -0.293f; // TODO review Language and English.DAMPENER_WORD_DECREMENT;
         }
-
         return currentValence;
     }
 
@@ -387,23 +384,19 @@ public class SentimentAnalysis {
             final float normalizedNegativePolarity = roundDecimal(Math.abs(negativeSentimentScore / normalizationFactor), 3);
             final float normalizedNeutralPolarity = roundDecimal(Math.abs(neutralSentimentCount / normalizationFactor), 3);
             final float normalizedCompoundPolarity = roundDecimal(compoundPolarity, 4);
-            return new HashMap<String, Float>() {
-                {
-                    put("compound", normalizedCompoundPolarity);
-                    put("positive", normalizedPositivePolarity);
-                    put("negative", normalizedNegativePolarity);
-                    put("neutral", normalizedNeutralPolarity);
-                }
-            };
+            return new HashMap<String, Float>() {{
+                put("compound", normalizedCompoundPolarity);
+                put("positive", normalizedPositivePolarity);
+                put("negative", normalizedNegativePolarity);
+                put("neutral", normalizedNeutralPolarity);
+            }};
         } else {
-            return new HashMap<String, Float>() {
-                {
-                    put("compound", 0.0f);
-                    put("positive", 0.0f);
-                    put("negative", 0.0f);
-                    put("neutral", 0.0f);
-                }
-            };
+            return new HashMap<String, Float>() {{
+                put("compound", 0.0f);
+                put("positive", 0.0f);
+                put("negative", 0.0f);
+                put("neutral", 0.0f);
+            }};
         }
     }
 
@@ -455,10 +448,7 @@ public class SentimentAnalysis {
         // TODO English language dependent!
         if (tokenList.contains("least")) {
             int index = tokenList.indexOf("least");
-            if (index > 0 && tokenList.get(index - 1).equals("at")) {
-
-                return true;
-            }
+            return index > 0 && tokenList.get(index - 1).equals("at");
         }
         return false;
     }
@@ -468,7 +458,6 @@ public class SentimentAnalysis {
 
             // TODO English language dependent!
             if (s.endsWith("n't")) {
-
                 return true;
             }
         }

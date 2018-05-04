@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright 2017 Nuno A. C. Henriques [nunoachenriques.net]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.nunoachenriques.vader;
 
 /**
- * The VADER's constant values (e.g., NORMALIZE_SCORE_ALPHA_DEFAULT)
- * for configurations and other uses among the algorithm.
+ * markdowntohtml.js
  *
+ * Converts a Markdown text file to an HTML one.
+ * Depends: Showdown [https://github.com/showdownjs/showdown] JavaScript library v1.8.6
+ * Depends: jjs (Java 8)
+ * Arguments: arguments[0] = Markdown file name.
+ * Use case: jjs -scripting showdown.min.js markdowntohtml.js -- README.md > README.html
  * @author Nuno A. C. Henriques [nunoachenriques.net]
  */
-class Constant {
 
-    private Constant() {
-    }
-
-    // TODO check SentimentAnalysis for missing constants!
-
-    static final float NORMALIZE_SCORE_ALPHA_DEFAULT = 15.0f;
-    static final float ALL_CAPS_BOOSTER_SCORE = 0.733f;
-    static final float N_SCALAR = -0.74f;
-    static final float EXCLAMATION_BOOST = 0.292f;
-    static final float QUESTION_BOOST_COUNT_3 = 0.18f;
-    static final float QUESTION_BOOST = 0.96f;
-}
+var converter = new showdown.Converter();
+converter.setFlavor('github');
+converter.setOption('simpleLineBreaks', false);
+converter.setOption('openLinksInNewWindow', true);
+converter.setOption('taskLists', true);
+print(converter.makeHtml(readFully(arguments[0])));

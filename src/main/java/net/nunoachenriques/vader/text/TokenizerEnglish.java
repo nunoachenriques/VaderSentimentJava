@@ -51,11 +51,7 @@ public class TokenizerEnglish
      */
     private static final Pattern PUNCTUATION_EXCLUDE_CONTRACTION_PATTERN = Pattern.compile("[\\p{Punct}&&[^.']]|(?<=(^|\\s|\\p{Punct}))[.']|[.'](?=($|\\s|\\p{Punct}))");
 
-    /**
-     * Default constructor.
-     */
     public TokenizerEnglish() {
-        // Void.
     }
 
     @Override

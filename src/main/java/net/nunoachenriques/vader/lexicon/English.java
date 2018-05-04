@@ -32,11 +32,8 @@ import java.util.Map;
  * original Python implementation.
  *
  * @author Nuno A. C. Henriques [nunoachenriques.net]
- * @see <a href="http://www.nltk.org/_modules/nltk/sentiment/vader.html">NLTK
- * source</a>
- * @see
- * <a href="https://github.com/cjhutto/vaderSentiment/blob/master/vaderSentiment/vaderSentiment.py">
- * vaderSentiment original Python source</a>
+ * @see <a href="http://www.nltk.org/_modules/nltk/sentiment/vader.html" target="_blank">NLTK source</a>
+ * @see <a href="https://github.com/cjhutto/vaderSentiment/blob/master/vaderSentiment/vaderSentiment.py target="_blank"">vaderSentiment original Python source</a>
  */
 public final class English
         implements Language {
@@ -112,7 +109,6 @@ public final class English
         m.put("more", BOOSTER_WORD_INCREMENT);
         m.put("considerably", BOOSTER_WORD_INCREMENT);
         m.put("fabulously", BOOSTER_WORD_INCREMENT);
-        m.put("sort of", DAMPENER_WORD_DECREMENT);
         m.put("hardly", DAMPENER_WORD_DECREMENT);
         m.put("very", BOOSTER_WORD_INCREMENT);
         m.put("sortof", DAMPENER_WORD_DECREMENT);
@@ -178,11 +174,7 @@ public final class English
         return lexDictionary;
     }
 
-    /**
-     * Default constructor.
-     */
     public English() {
-        // Void.
     }
 
     @Override

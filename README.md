@@ -12,15 +12,15 @@ from the [original project](https://github.com/cjhutto/vaderSentiment) by
 the paper's author C.J. Hutto. It's the same algorithm as an improved
 tool by extensive rewriting with **relevant changes**:
  
- - Android ready.
- - API and package names breaking changes.
- - Java 1.7 compatible.
- - Performance improvements (e.g., `LinkedList` where's better O() than
+ - [x] Android ready.
+ - [x] API and package names breaking changes.
+ - [x] Java 1.7 compatible.
+ - [x] Performance improvements (e.g., `LinkedList` where's better O() than
    `ArrayList`).
 
 **In progress**
 
- - Multi-language (refer to section [Languages](#languages)).
+ - [ ] Multi-language (refer to section [Languages](#languages)).
 
 ## Repository
 
@@ -50,8 +50,7 @@ https://github.com/nunoachenriques/vader-sentiment-analysis/releases
 1. Get the code from the repository (clone or download).
 
 2. Change to the package root directory and `./gradlew installDist`.
-   Notice: remember to change `gradle.properties` accordingly to your
-   JDK home for 1.7 version compatibility.
+   NOTICE: check [Troubleshooting](#troubleshooting) for Java version 1.7 compatibility.
 
 3. The JAR packages will be in `build/install/vader-sentiment-analysis`
    directory.
@@ -130,10 +129,20 @@ https://github.com/nunoachenriques/vader-sentiment-analysis/releases
 1. Get the code from the repository (clone or download).
 
 2. Change to the package root directory and `./gradlew javadoc`.
-   Notice: remember to change `gradle.properties` accordingly to your
-   JDK home for 1.7 version compatibility.
+   NOTICE: check [Troubleshooting](#troubleshooting) for Java version 1.7 compatibility.
 
 3. The docs will be in `build/docs/javadoc` directory.
+
+## Troubleshooting
+
+### Java 1.7 compatibility
+
+1. Install OpenJDK 7.
+2. Suffix Gradle command-line with `-Dorg.gradle.java.home=/path_to_jdk_7` such as (Debian GNU/Linux):
+
+```shell
+./gradlew test -Dorg.gradle.java.home=/usr/lib/jvm/java-7-openjdk-amd64/
+```
 
 ## License
 
